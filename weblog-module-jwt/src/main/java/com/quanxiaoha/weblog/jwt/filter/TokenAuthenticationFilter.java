@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +28,12 @@ import java.util.Objects;
 @Slf4j
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
+    @Value("${jwt.tokenPrefix}")
+    private String tokenPrefix;
+
+    @Value("${jwt.tokenHeaderKey}")
+    private String tokenHeaderKey;
+
     @Autowired
     private JwtTokenHelper jwtTokenHelper;
 
@@ -39,10 +46,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 从请求头中获取 key 为 Authorization 的值
-        String header = request.getHeader("Authorization");
+        String header = request.getHeader(tokenHeaderKey);
 
         // 判断 value 值是否以 Bearer 开头
-        if (StringUtils.startsWith(header, "Bearer")) {
+        if (StringUtils.startsWith(header, tokenPrefix)) {
             // 截取 Token 令牌
             String token = StringUtils.substring(header, 7);
             log.info("Token: {}", token);
