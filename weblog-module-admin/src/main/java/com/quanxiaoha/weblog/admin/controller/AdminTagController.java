@@ -6,6 +6,7 @@ import com.quanxiaoha.weblog.admin.model.vo.category.FindCategoryPageListReqVO;
 import com.quanxiaoha.weblog.admin.model.vo.tag.AddTagReqVO;
 import com.quanxiaoha.weblog.admin.model.vo.tag.DeleteTagReqVO;
 import com.quanxiaoha.weblog.admin.model.vo.tag.FindTagPageListReqVO;
+import com.quanxiaoha.weblog.admin.model.vo.tag.SearchTagReqVO;
 import com.quanxiaoha.weblog.admin.service.AdminCategoryService;
 import com.quanxiaoha.weblog.admin.service.AdminTagService;
 import com.quanxiaoha.weblog.common.aspect.ApiOperationLog;
@@ -47,6 +48,13 @@ public class AdminTagController {
     @ApiOperationLog(description = "删除标签")
     public Response deleteTag(@RequestBody @Validated DeleteTagReqVO deleteTagReqVO){
         return tagService.deleteTag(deleteTagReqVO);
+    }
+
+    @PostMapping("/search")
+    @ApiOperation(value = "标签模糊查询")
+    @ApiOperationLog(description = "标签模糊查询")
+    public Response searchTag(@RequestBody @Validated SearchTagReqVO searchTagReqVO){
+        return tagService.searchTag(searchTagReqVO);
     }
 //
 //    @PostMapping("/select/list")

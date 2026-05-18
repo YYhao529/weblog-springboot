@@ -3,14 +3,11 @@ package com.quanxiaoha.weblog.admin.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.quanxiaoha.weblog.admin.model.vo.category.DeleteCategoryReqVO;
-import com.quanxiaoha.weblog.admin.model.vo.tag.AddTagReqVO;
-import com.quanxiaoha.weblog.admin.model.vo.tag.DeleteTagReqVO;
-import com.quanxiaoha.weblog.admin.model.vo.tag.FindTagPageListReqVO;
-import com.quanxiaoha.weblog.admin.model.vo.tag.FindTagPageListRspVO;
+import com.quanxiaoha.weblog.admin.model.vo.tag.*;
 import com.quanxiaoha.weblog.admin.service.AdminTagService;
 import com.quanxiaoha.weblog.common.domain.dos.TagDO;
 import com.quanxiaoha.weblog.common.domain.mapper.TagMapper;
+import com.quanxiaoha.weblog.common.model.vo.SelectRspVO;
 import com.quanxiaoha.weblog.common.utils.PageResponse;
 import com.quanxiaoha.weblog.common.utils.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +19,6 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -118,5 +114,32 @@ public class AdminTagServiceImpl extends ServiceImpl<TagMapper, TagDO> implement
         int count = tagMapper.deleteById(id);
 
         return count == 1 ? Response.success() : Response.fail(TAG_NOT_EXISTED);
+    }
+
+    /**
+     * 标签模糊查询
+     */
+    @Override
+    public Response searchTag(SearchTagReqVO searchTagReqVO) {
+        String key = searchTagReqVO.getKey();
+        // 构造查询条件
+        LambdaQueryWrapper<TagDO> wrapper = new LambdaQueryWrapper<TagDO>();
+        wrapper.like(TagDO::getName, key)
+                .orderByDesc(TagDO::getCreateTime);
+
+        // 执行查询
+        List<TagDO> tagDOS = tagMapper.selectList(wrapper);
+
+        // do -> vo
+        List<SelectRspVO> selectRspVOS = null;
+        if (!CollectionUtils.isEmpty(tagDOS)) {
+            selectRspVOS = tagDOS.stream().map(tagDO -> SelectRspVO.builder()
+                            .label(tagDO.getName())
+                            .value(tagDO.getId())
+                            .build())
+                    .collect(Collectors.toList());
+        }
+
+        return Response.success(selectRspVOS);
     }
 }

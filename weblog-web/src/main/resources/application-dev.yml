@@ -17,3 +17,11 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
       connection-test-query: SELECT 1
+#=================================================================
+# minio
+#=================================================================
+minio:
+  endpoint: http://127.0.0.1:9000
+  accessKey: quanxiaoha
+  secretKey: quanxiaoha
+  bucketName: weblog
