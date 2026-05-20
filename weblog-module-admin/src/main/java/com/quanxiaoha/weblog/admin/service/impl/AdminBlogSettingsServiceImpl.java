@@ -2,6 +2,7 @@ package com.quanxiaoha.weblog.admin.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.quanxiaoha.weblog.admin.convert.BlogSettingsConvert;
+import com.quanxiaoha.weblog.admin.model.vo.blogSettings.FindBlogSettingsRspVO;
 import com.quanxiaoha.weblog.admin.model.vo.blogSettings.UpdateBlogSettingReqVO;
 import com.quanxiaoha.weblog.admin.service.AdminBlogSettingsService;
 import com.quanxiaoha.weblog.common.domain.dos.BlogSettingsDO;
@@ -28,5 +29,19 @@ public class AdminBlogSettingsServiceImpl extends ServiceImpl<BlogSettingsMapper
         // 保存或更新
         saveOrUpdate(blogSettingsDO);
         return Response.success();
+    }
+
+    /**
+     * 获取博客设置详情
+     */
+    @Override
+    public Response findDetail() {
+        // 查询 ID 为 1 的记录
+        BlogSettingsDO blogSettingsDO = getById(1L);
+
+        // DO 转换为 VO
+        FindBlogSettingsRspVO vo = blogSettingsConvert.convertDO2VO(blogSettingsDO);
+
+        return Response.success(vo);
     }
 }
