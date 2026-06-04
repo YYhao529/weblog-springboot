@@ -25,7 +25,7 @@ public class AdminBlogSettingsController {
         return blogSettingsService.updateBlogSettings(updateBlogSettingReqVO);
     }
 
-    @GetMapping("/detail")
+    @PostMapping("/detail")
     @ApiOperation("获取博客设置详情")
     @ApiOperationLog(description = "获取博客设置详情")
     public Response findDetail() {

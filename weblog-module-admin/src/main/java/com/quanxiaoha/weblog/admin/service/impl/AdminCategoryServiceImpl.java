@@ -1,14 +1,15 @@
 package com.quanxiaoha.weblog.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.quanxiaoha.weblog.admin.model.vo.category.AddCategoryReqVO;
 import com.quanxiaoha.weblog.admin.model.vo.category.DeleteCategoryReqVO;
 import com.quanxiaoha.weblog.admin.model.vo.category.FindCategoryPageListReqVO;
 import com.quanxiaoha.weblog.admin.model.vo.category.FindCategoryPageListRspVO;
 import com.quanxiaoha.weblog.admin.service.AdminCategoryService;
+import com.quanxiaoha.weblog.common.domain.dos.ArticleCategoryRelDO;
 import com.quanxiaoha.weblog.common.domain.dos.CategoryDO;
+import com.quanxiaoha.weblog.common.domain.mapper.ArticleCategoryRelMapper;
 import com.quanxiaoha.weblog.common.domain.mapper.CategoryMapper;
 import com.quanxiaoha.weblog.common.enums.ResponseCodeEnum;
 import com.quanxiaoha.weblog.common.exception.BizException;
@@ -31,6 +32,8 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired
+    private ArticleCategoryRelMapper articleCategoryRelMapper;
 
     /**
      * 添加分类
@@ -105,6 +108,13 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     public Response deleteCategory(DeleteCategoryReqVO deleteCategoryReqVO) {
         // 分类 id
         Long categoryId = deleteCategoryReqVO.getId();
+
+        // 校验该分类下是否有文章
+        ArticleCategoryRelDO articleCategoryRelDO = articleCategoryRelMapper.selectOneByCategoryId(categoryId);
+        if (Objects.nonNull(articleCategoryRelDO)) {
+            log.warn("==> 此分类下包含文章，无法删除，categoryId：{}",categoryId);
+            throw new BizException(ResponseCodeEnum.CATEGORY_CAN_NOT_DELETE);
+        }
 
         // 删除分类
         categoryMapper.deleteById(categoryId);

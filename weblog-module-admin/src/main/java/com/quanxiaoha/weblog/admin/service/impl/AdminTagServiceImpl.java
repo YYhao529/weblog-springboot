@@ -5,8 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.quanxiaoha.weblog.admin.model.vo.tag.*;
 import com.quanxiaoha.weblog.admin.service.AdminTagService;
+import com.quanxiaoha.weblog.common.domain.dos.ArticleTagRelDO;
 import com.quanxiaoha.weblog.common.domain.dos.TagDO;
+import com.quanxiaoha.weblog.common.domain.mapper.ArticleTagRelMapper;
 import com.quanxiaoha.weblog.common.domain.mapper.TagMapper;
+import com.quanxiaoha.weblog.common.enums.ResponseCodeEnum;
+import com.quanxiaoha.weblog.common.exception.BizException;
 import com.quanxiaoha.weblog.common.model.vo.SelectRspVO;
 import com.quanxiaoha.weblog.common.utils.PageResponse;
 import com.quanxiaoha.weblog.common.utils.Response;
@@ -32,6 +36,8 @@ public class AdminTagServiceImpl extends ServiceImpl<TagMapper, TagDO> implement
 
     @Autowired
     private TagMapper tagMapper;
+    @Autowired
+    private ArticleTagRelMapper articleTagRelMapper;
 
     /**
      * 添加标签集合
@@ -110,6 +116,12 @@ public class AdminTagServiceImpl extends ServiceImpl<TagMapper, TagDO> implement
     public Response deleteTag(DeleteTagReqVO deleteTagReqVO) {
         // 获取标签 id
         Long id = deleteTagReqVO.getId();
+        // 判断标签是否被文章引用
+        ArticleTagRelDO articleTagRelDO = articleTagRelMapper.selectOneByTagId(id);
+        if (Objects.nonNull(articleTagRelDO)) {
+            log.warn("==> 标签被文章引用，无法删除，tagId：{}", id);
+            throw new BizException(ResponseCodeEnum.TAG_CAN_NOT_DELETE);
+        }
         // 删除标签
         int count = tagMapper.deleteById(id);
 
@@ -141,5 +153,26 @@ public class AdminTagServiceImpl extends ServiceImpl<TagMapper, TagDO> implement
         }
 
         return Response.success(selectRspVOS);
+    }
+
+    /**
+     * 分类 Select 下拉列表数据获取
+     */
+    @Override
+    public Response findTagSelectList() {
+        // 查询所有标签
+        List<TagDO> tagDOS = tagMapper.selectList(null);
+
+        // DO -> VO
+        List<SelectRspVO> vos = null;
+        if (!CollectionUtils.isEmpty(tagDOS)) {
+            vos = tagDOS.stream().map(tagDO -> SelectRspVO.builder()
+                            .label(tagDO.getName())
+                            .value(tagDO.getId())
+                            .build())
+                    .collect(Collectors.toList());
+        }
+
+        return Response.success(vos);
     }
 }

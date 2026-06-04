@@ -1,15 +1,14 @@
-#=================================================================
 # log 日志
-#=================================================================
 logging:
   config: classpath:logback-weblog.xml
-
+server:
+  port: 8080
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/weblog?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://172.18.0.1:3306/weblog?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull
     username: root
-    password: 1234
+    password: 200529AHJahj.
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20
@@ -19,3 +18,9 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
       connection-test-query: SELECT 1
+# minio
+minio:
+  endpoint: http://39.108.120.49:9000
+  accessKey: quanxiaoha
+  secretKey: quanxiaoha
+  bucketName: weblog
